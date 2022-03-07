@@ -1,0 +1,9 @@
+sudo: required
+services:
+  - docker
+
+before_install:
+  - docker build -t ktadikonda/dockerprodworkflow -f Dockerfile.dev .
+
+script:
+  - docker run -e CI=true ktadikonda/dockerprodworkflow npm run test -- --coverage
