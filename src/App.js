@@ -7,7 +7,7 @@ function App() {
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
-          Production Grade Docker Compose Workflow Version 1
+          Production Grade Docker Compose Workflow -Feature Branch
         </p>
         <a
           className="App-link"
