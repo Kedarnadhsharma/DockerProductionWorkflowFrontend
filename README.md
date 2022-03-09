@@ -62,23 +62,54 @@ The only difference between these two is, for Production Docker container, we us
 
 
 
-### `npm run build`
+### AWS Setup
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+1. Login to your AWS Account and Search for Elastic BeanStalk (EBS) and Create Application. By default AWS will create this application in an environment.
+2. While creating the Application select the Platform as Docker and Plaform branch as Docker running 64 bit Amazon Linux2 as below
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+ ![image](https://user-images.githubusercontent.com/50028950/157393744-327608d9-ddc7-4b41-834c-027de156f9a0.png)
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+3. AWS will internally create a bunch of infrastrucure like Load Balanacers/VPC/VPNs as a part of this provisioning this EBS call and finally after sometime you should see something like this.
 
-### `npm run eject`
+ ![image](https://user-images.githubusercontent.com/50028950/157394148-d69b4a6f-16b1-4598-8d81-cb37f176d446.png)
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+4. Once you click on the URL that was created for the EBS, you will see the sample mockscreen as below. Now will upload the docker container into this so that we hit the EBS url, we can see the React App in the EBS.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+ ![image](https://user-images.githubusercontent.com/50028950/157395771-d0017898-d87d-4691-864f-487ae5c61553.png)
+ 
+ Internally EBS will also create a S3 bucket to copy the build output and this bucket name will be used for configuring the Travis CI later.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+5. Next we need to create an IAM role so that TravisCI can use this role to deploy the code into EBS whenever there is a change.
+6. Create a new IAM user and select AdministerAccess-AWSElasticBeanStalk as the role for this user. After the creation of this user, AWS will provide us AWS Access key and Secret Access Key. These keys needs to be updated in the TravisCI.  
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+ ![image](https://user-images.githubusercontent.com/50028950/157396511-f1017ec6-b61a-47e6-9a57-1724214a5810.png)
+
+ ![image](https://user-images.githubusercontent.com/50028950/157396687-3f8ede4a-50e4-48b4-ba09-531f663aea7f.png)
+ 
+ Note : Please copy the Secret Access Key immediately as it is only visible once. If you lost it, we need to regenerate the keys again.
+
+
+### `Final Updates in Travis Configuration`
+
+1. Lastly, we need to tell the TravisCI to deploy the docker container to the Amazon EBS that we created as below by updating its configuration.
+
+ ![image](https://user-images.githubusercontent.com/50028950/157397305-e9baa8c4-ce88-4727-9643-b5500e973511.png)
+
+  a. Deploy : Location where we need to deploy this application. Since we are deploying it to AWS Elastic Beanstalk we need to specify "elasticbeanstalk". </br>
+  b. Region : This is the AWS region which can be found from the AWS Beanstalk URL (Generally like us-east-1, us-west-2 etc) </br>
+  c. app:This is Application Name which we have used while creating the EBS </br>
+  d. Env: Created by AWS automatically by appending the "env" to the app name. </br>
+  e. bucket_name: Created during the process of EBS Provisioning. You can get it by navigating to the S3 section of AWS and identifying a bucket which starts with "elastic..." </br>
+  f. bucket_path : Same as app name. </br>
+  
+ 2. Next we need to tell TravisCI to use the ACCESS and SECRET ACCESS Keys while deploying into AWS. Additionally since we do not want to have these keys hardcoded in the YML files we will pass these as parameters in the above config (See last two lines)
+ 3. Navigate to the Project Settings in TravisCI and add the same keys.
+ 
+ ![image](https://user-images.githubusercontent.com/50028950/157398388-627ed571-38d8-45b9-b6b2-faf8753f7aaf.png)
+
+Thats it.. Now if we make any change to the app and push it to master branch, an automatic build will be triggered in Travis CI and the updated container is deployed in AWS as Elastic Beanstalk application.
+
+![image](https://user-images.githubusercontent.com/50028950/157398762-0ffbbb1f-f39d-4f10-8816-59511ed293b1.png)
+
+ 
 
