@@ -1,15 +1,45 @@
-# Getting Started with Create React App
+# Continuous Integration and Deployment to AWS.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is a simple React App which is deplyoed as Docker Container in AWS Elastic Beanstack. The following sections lists the step by step process of setting up a Continuous Integration Process from local desktop/laptop. For this project TravisCI is used as a the tool for performing Continuous Integration and Deployment to AWS. A seperate Docker Container is also used to run the default tests that are created as a part of the default bootstrapped React Project.
 
-## Available Scripts
 
-In the project directory, you can run:
+## Prerequisites
 
-### `npm start`
+1. React JS Library
+2. Docker Desktop
+3. Travis CI Account
+4. GitHub
+5. AWS Account
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### `React Application`
+
+1. Create a simple React App by running npx create-react-app in the command prompt and make sure you can view it by  [http://localhost:3000](http://localhost:3000) to view it in your browser.
+
+### `Add Container Support to React`
+3. Create two Docker files one for Development (Dockerfile.dev) and another for Production version (Dockerfile) of the React Application as below.
+The only difference between these two is, for Production Docker container, we use NGINX as the webserver to host the React Application and also uses the multi stage build to copy the build output to NGINX.
+
+a.  Dockerfile.dev
+
+   ![image](https://user-images.githubusercontent.com/50028950/157384321-a72fb287-4ceb-4b31-9fdc-7644e2b63431.png)
+
+b. Dockerfile (Production)
+    
+   ![image](https://user-images.githubusercontent.com/50028950/157384669-d6fee228-6c78-47ea-99e5-38edef76c1ed.png)
+   
+c. We can run these containers using the docker build and docker run commands using the port mapping and confirm there are no issues in the Docker configuration.
+
+  ![image](https://user-images.githubusercontent.com/50028950/157386251-3e0469d0-5d03-400d-9b5f-f361b3fb2288.png)
+
+d. Run docker run -p 9000:3000 -t ktadikonda/dockerreactaws and navigate to http://localhost:9000. 
+  
+  ![image](https://user-images.githubusercontent.com/50028950/157387568-234ca600-7dd4-4bc0-96bd-a287dba0cd41.png)
+  
+e. To create the Production container, we just run the docker build command without the -f parameter. In this case, Docker will use the default Dockefile that we created for Production in above will be used to create the container. I used the tag name "dockerreactawsprod" to differentiate it from existing development image from above step. 
+
+  ![image](https://user-images.githubusercontent.com/50028950/157388126-feee0a74-23a4-4bc6-872d-32195d88c110.png)
+
+
 
 The page will reload when you make changes.\
 You may also see any lint errors in the console.
@@ -39,32 +69,3 @@ Instead, it will copy all the configuration files and the transitive dependencie
 
 You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
 
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
